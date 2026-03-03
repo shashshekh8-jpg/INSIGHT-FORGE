@@ -1,0 +1,5 @@
+transaction_id,timestamp,amount_inr,sender_state,receiver_bank,device_type,network_type,verification_status,fraud_flag
+TXN-001,2026-02-28T10:00:00Z,4500.00,Maharashtra,HDFC Bank,Android,4G,verified,0
+TXN-002,2026-02-28T10:01:15Z,850000.00,Bihar,Kotak Bank,Desktop,WiFi,pending,1
+TXN-003,2026-02-28T10:02:30Z,1200.00,Karnataka,SBI,iOS,5G,verified,0
+TXN-004,2026-02-28T10:03:00Z,920000.00,Bihar,Kotak Bank,Android,4G,pending,1
