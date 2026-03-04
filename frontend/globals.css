@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    height: 100%;
+    margin: 0;
+    background-color: #030712; /* Matches your Tremor dark background */
+    color: white;
+    overflow-x: hidden;
+  }
+}
+
+/* Optional: Define your intent-pulse keyframes here if Tailwind animate doesn't auto-generate it */
+@keyframes intent-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0); }
+}
