@@ -16,7 +16,8 @@ export function ParticleCloud() {
       }));
   }, [engineData]);
 
-  const [viewState, setViewState] = useState({ 
+  // FIX: Added <any> here to override strict type inference
+  const [viewState, setViewState] = useState<any>({ 
       longitude: 0, 
       latitude: 0, 
       zoom: 2, 
@@ -33,7 +34,7 @@ export function ParticleCloud() {
             transitionInterpolator: new FlyToInterpolator() 
         });
     }
-  }, [isProcessing]);
+  }, [isProcessing, viewState]);
 
   return (
       <DeckGL 
