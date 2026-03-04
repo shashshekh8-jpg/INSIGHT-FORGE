@@ -8,33 +8,48 @@ export function InsightOmnibar() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Added safety check so users can't spam enter while it's already processing
     if (!query.trim() || isProcessing) return;
 
     setProcessing(true, "Orchestrating...", "border-blue-500");
 
-    try {
-      // Swapped EventSource for a standard one-time fetch call
-      const response = await fetch(`/api/ask?query=${encodeURIComponent(query)}`);
-      
-      if (!response.ok) {
-        throw new Error(`Server returned ${response.status}`);
+    // We use EventSource to get the cool real-time stream updates
+    const eventSource = new EventSource(`/api/ask?query=${encodeURIComponent(query)}`);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        // Update UI state based on graph progress
+        if (data.planner) {
+            setProcessing(true, "Consulting Semantic Layer...", "border-purple-500");
+        }
+
+        // SCENARIO 1: Success
+        if (data.executor) {
+          const res = data.executor;
+          setEngineData({ ...res });
+          setProcessing(false, "Complete", "border-amber-500");
+          eventSource.close(); // CRITICAL: Stop stream on success
+          setQuery('');
+        } 
+        // SCENARIO 2: Graceful Backend Error (This fixes the "hey" bug!)
+        else if (data.error) {
+          console.error("Tri-Brain failed to process query:", data.error);
+          setProcessing(false, "Query Rejected by AI", "border-red-500");
+          eventSource.close(); // CRITICAL: Stop stream on AI error
+        }
+
+      } catch (err) {
+        console.error("Failed to parse stream data:", err);
       }
+    };
 
-      const data = await response.json();
-
-      // Ensure we extract the actual payload correctly based on how your backend wraps it.
-      // If your backend returns {"response": { ...engineData... }} we grab data.response
-      const payload = data.response || data; 
-
-      setEngineData(payload);
-      setProcessing(false, "Complete", "border-amber-500");
-      setQuery(''); // Clear the input after a successful query
-
-    } catch (error) {
-      console.error("Query failed:", error);
-      setProcessing(false, "Failed to connect to Tri-Brain", "border-red-500");
-    }
+    // SCENARIO 3: Fatal Connection Error (The Ultimate Kill Switch)
+    eventSource.onerror = (error) => {
+      console.error("EventSource connection dropped:", error);
+      setProcessing(false, "Connection Lost", "border-red-500");
+      eventSource.close(); // CRITICAL: Stop the infinite loop!
+    };
   };
 
   return (
