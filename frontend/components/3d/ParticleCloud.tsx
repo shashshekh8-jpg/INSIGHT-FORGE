@@ -16,7 +16,7 @@ export function ParticleCloud() {
       }));
   }, [engineData]);
 
-  // FIX: Added <any> here to override strict type inference
+  // FIX 1: Added <any> to allow dynamic animation properties
   const [viewState, setViewState] = useState<any>({ 
       longitude: 0, 
       latitude: 0, 
@@ -39,7 +39,8 @@ export function ParticleCloud() {
   return (
       <DeckGL 
           viewState={viewState} 
-          onViewStateChange={({ viewState }) => setViewState(viewState as any)} 
+          // FIX 2: Explicitly type the event object as 'any' to avoid destructuring type errors
+          onViewStateChange={(e: any) => setViewState(e.viewState)} 
           controller={!isProcessing} 
           layers={[
               new ScatterplotLayer({ 
